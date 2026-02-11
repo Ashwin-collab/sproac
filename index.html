@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>SPROAC Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body {
+    font-family: Arial;
+    background: #0f172a;
+    color: white;
+    text-align: center;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.card {
+    background: #1e293b;
+    padding: 15px;
+    margin: 10px;
+    border-radius: 10px;
+    width: 160px;
+}
+
+.value {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+canvas {
+    background: white;
+    border-radius: 10px;
+    margin-top: 20px;
+}
+
+table {
+    width: 95%;
+    margin: auto;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    border: 1px solid #334155;
+    padding: 6px;
+}
+
+th {
+    background: #0ea5e9;
+}
+</style>
+</head>
+
+<body>
+
+<h1>📊 SPROAC Live Dashboard</h1>
+
+<a href="index.html" style="color:#0ea5e9;">⬅ Back to Table</a>
+
+<div class="container">
+
+<div class="card">
+🌡 Temp
+<div id="temp" class="value">--</div>
+</div>
+
+<div class="card">
+💧 Humidity
+<div id="hum" class="value">--</div>
+</div>
+
+<div class="card">
+☁ H2S
+<div id="h2s" class="value">--</div>
+</div>
+
+<div class="card">
+📊 MQ135
+<div id="mq" class="value">--</div>
+</div>
+
+<div class="card">
+🍺 Alcohol
+<div id="alc" class="value">--</div>
+</div>
+
+</div>
+
+<h2>Gas Trend</h2>
+<canvas id="gasChart" width="900" height="300"></canvas>
+
+<h2>All Readings</h2>
+<table id="dataTable">
+<thead>
+<tr>
+<th>Date</th>
+<th>Temp</th>
+<th>Hum</th>
+<th>H2S</th>
+<th>MQ135</th>
+<th>Alcohol</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+
+<script>
+
+const API_URL = "https://script.google.com/macros/s/AKfycbyNjAvZGUc4VsbMXySa04ItqkSReNQMlsgtAwqRng_Y60VlRXiwIU0pjpQ3LvUxRhGCsg/exec";
+
+let gasChart;
+
+async function loadData() {
+    const res = await fetch(API_URL);
+    const data = await res.json();
+
+    if (data.length == 0) return;
+
+    const last = data[data.length - 1];
+
+    document.getElementById("temp").innerText = last.temperature + "°C";
+    document.getElementById("hum").innerText = last.humidity + "%";
+    document.getElementById("h2s").innerText = last.h2s + "ppm";
+    document.getElementById("mq").innerText = last.mq135 + "ppm";
+    document.getElementById("alc").innerText = last.alcohol + "ppm";
+
+    const labels = data.map(d => d.datetime);
+    const h2sData = data.map(d => d.h2s);
+    const mqData = data.map(d => d.mq135);
+    const alcData = data.map(d => d.alcohol);
+
+    // Graph
+    if (!gasChart) {
+        const ctx = document.getElementById("gasChart").getContext("2d");
+        gasChart = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: labels,
+                datasets: [
+                    { label: "H2S", data: h2sData, borderColor: "red" },
+                    { label: "MQ135", data: mqData, borderColor: "blue" },
+                    { label: "Alcohol", data: alcData, borderColor: "green" }
+                ]
+            }
+        });
+    } else {
+        gasChart.data.labels = labels;
+        gasChart.data.datasets[0].data = h2sData;
+        gasChart.data.datasets[1].data = mqData;
+        gasChart.data.datasets[2].data = alcData;
+        gasChart.update();
+    }
+
+    // Table
+    const tableBody = document.querySelector("#dataTable tbody");
+    tableBody.innerHTML = "";
+
+    data.slice().reverse().forEach(row => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>${row.datetime}</td>
+            <td>${row.temperature}</td>
+            <td>${row.humidity}</td>
+            <td>${row.h2s}</td>
+            <td>${row.mq135}</td>
+            <td>${row.alcohol}</td>
+        `;
+        tableBody.appendChild(tr);
+    });
+}
+
+loadData();
+setInterval(loadData, 5000);
+
+</script>
+
+</body>
+</html>
