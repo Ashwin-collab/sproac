@@ -34,6 +34,7 @@ body{
     100%{background-position:0% 50%;}
 }
 
+/* CHANGE 1: Center the title and clock container */
 .title{
     font-size:50px;
     margin-top:20px;
@@ -43,6 +44,60 @@ body{
     -webkit-background-clip:text;
     -webkit-text-fill-color:transparent;
     animation:titleFade 1s ease;
+    /* ADD THESE LINES: */
+    position: relative;
+    z-index: 1;
+}
+
+.clock{
+    font-size:30px;
+    opacity:0.8;
+    /* ADD THIS LINE: */
+    margin-bottom: 20px;
+}
+
+/* CHANGE 2: Center ALL state containers */
+.state{ 
+    display:none; 
+    animation:fadeIn 0.4s ease;
+    /* ADD THESE LINES: */
+    min-height: 50vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+/* CHANGE 3: Update the START state (remove the duplicate styling) */
+/* REMOVE OR COMMENT OUT THIS SECTION:
+#START {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+    padding: 20px;
+}
+*/
+
+/* CHANGE 4: Make sure buttons stay centered */
+button{
+    display:block;
+    width:260px;
+    margin:10px auto;  /* This already centers, but keep it */
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    background:#1e293b;
+    color:white;
+    font-size:18px;
+    cursor:pointer;
+    transition:all 0.25s ease;
+    -webkit-user-select: none;
+    user-select: none;
+    /* ADD THIS LINE: */
+    flex-shrink: 0;
 }
 
 @keyframes titleFade{
@@ -50,10 +105,6 @@ body{
     to{opacity:1; transform:translateY(0);}
 }
 
-.clock{
-    font-size:30px;
-    opacity:0.8;
-}
 
 /* DATE TIME PANEL - Fixed Position */
 .datetime-box{
@@ -742,4 +793,5 @@ updateStatus();
 
 </body>
 </html>
+
 
