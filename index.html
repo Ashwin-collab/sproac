@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>SPROAC - Smart Produce Monitoring</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -16,6 +16,16 @@ body{
     background:linear-gradient(270deg,#0f172a,#1e293b,#020617);
     background-size:600% 600%;
     animation:bgMove 12s ease infinite;
+    /* Prevent zoom and selection */
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* Prevent zoom gestures */
+* {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
 }
 
 @keyframes bgMove{
@@ -94,6 +104,16 @@ body{
     font-weight:bold;
 }
 
+/* CENTER CONTAINER FOR START STATE */
+#START {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+    padding: 20px;
+}
+
 button{
     display:block;
     width:260px;
@@ -106,6 +126,9 @@ button{
     font-size:18px;
     cursor:pointer;
     transition:all 0.25s ease;
+    /* Prevent text selection */
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 button:hover{ 
@@ -236,10 +259,10 @@ th{
 
 <!-- MAIN MENU -->
 <div id="MAIN" class="state">
-<button onclick="setState('CATEGORY')"> Vegetables / Fruits</button>
-<button onclick="setState('GRAPH')"> Graphical Data</button>
-<button onclick="setState('LOG')"> All Readings</button>
-<button onclick="setState('HELP')"> Help & Support</button>
+<button onclick="setState('CATEGORY')">🥬 Vegetables / Fruits</button>
+<button onclick="setState('GRAPH')">📊 Graphical Data</button>
+<button onclick="setState('LOG')">📝 All Readings</button>
+<button onclick="setState('HELP')">❓ Help & Support</button>
 <button onclick="setState('ABOUT')">ℹ About Us</button>
 <button onclick="setState('START')">⬅ Back</button>
 </div>
@@ -265,9 +288,9 @@ th{
 
 <p><b>Step 5:</b> Select the produce to monitor:</p>
 <ul>
-<li> Onion / Garlic → Uses H2S Gas Sensor</li>
-<li> Potato → Uses MQ135 Gas Sensor</li>
-<li> Tomato /  Banana → Uses Alcohol Sensor</li>
+<li>🧅 Onion / Garlic → Uses H2S Gas Sensor</li>
+<li>🥔 Potato → Uses MQ135 Gas Sensor</li>
+<li>🍅 Tomato / 🍌 Banana → Uses Alcohol Sensor</li>
 </ul>
 
 <p><b>Step 6:</b> Monitor real-time values:</p>
@@ -300,8 +323,7 @@ th{
 
 <p>Email: <b>ashwinlauzer@gmail.com</b></p>
 <p>System: SPROAC Smart Monitoring</p>
-<p>contact no:<b>+91 8610640752</b>
-</p>
+<p>Contact No: <b>+91 8610640752</b></p>
 
 </div>
 
@@ -466,9 +488,36 @@ const API_URL="https://script.google.com/macros/s/AKfycbyNjAvZGUc4VsbMXySa04Itqk
 let currentItem="";
 let gasChart=null;
 
+// Prevent zoom on double tap
+let lastTouchEnd = 0;
+document.addEventListener('touchend', function (event) {
+    const now = (new Date()).getTime();
+    if (now - lastTouchEnd <= 300) {
+        event.preventDefault();
+    }
+    lastTouchEnd = now;
+}, false);
+
+// Prevent pinch zoom
+document.addEventListener('gesturestart', function (e) {
+    e.preventDefault();
+});
+
+document.addEventListener('gesturechange', function (e) {
+    e.preventDefault();
+});
+
+document.addEventListener('gestureend', function (e) {
+    e.preventDefault();
+});
+
 function setState(state){
     document.querySelectorAll(".state").forEach(s=>s.style.display="none");
-    document.getElementById(state).style.display="block";
+    if(state === "START") {
+        document.getElementById(state).style.display="flex";
+    } else {
+        document.getElementById(state).style.display="block";
+    }
 }
 setState("START");
 
@@ -693,4 +742,3 @@ updateStatus();
 
 </body>
 </html>
-
